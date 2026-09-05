@@ -1,4 +1,7 @@
-import { readData, writeData } from "../repository/readData.js";
+import { readData } from "../repository/readData.js";
+import { writeData } from "../repository/writeData.js";
+import { parseId } from "../utils/parseId.js";
+import { NotFoundError, ConflictError } from "../core/error.response.js";
 
 export const getAllUsers = async () => {
   const data = await readData();
@@ -6,13 +9,26 @@ export const getAllUsers = async () => {
 };
 
 export const getUserById = async (userId) => {
+  const id = parseId(userId);
   const data = await readData();
-  return data.users.find((user) => user.id === parseInt(userId)) || null;
+  const user = data.users.find((u) => u.id === id);
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  return user;
 };
 
 export const createUser = async (userData) => {
   const data = await readData();
-  const maxId = data.users.reduce((max, user) => Math.max(max, user.id), 0);
+
+  const emailExists = data.users.some((u) => u.email === userData.email);
+  if (emailExists) {
+    throw new ConflictError("Email already exists");
+  }
+
+  const maxId = data.users.reduce((max, u) => (u.id > max ? u.id : max), 0);
   const newUser = {
     id: maxId + 1,
     ...userData,
@@ -24,19 +40,28 @@ export const createUser = async (userData) => {
   return newUser;
 };
 
-export const updateUser = async (userId, userData) => {
+export const updateUser = async (userId, updateData) => {
+  const id = parseId(userId);
   const data = await readData();
-  const parsedId = parseInt(userId, 10);
-  const userIndex = data.users.findIndex((user) => user.id === parsedId);
 
+  const userIndex = data.users.findIndex((u) => u.id === id);
   if (userIndex === -1) {
-    return null;
+    throw new NotFoundError("User not found");
+  }
+
+  if (updateData.email && updateData.email !== data.users[userIndex].email) {
+    const emailExists = data.users.some(
+      (u) => u.id !== id && u.email === updateData.email,
+    );
+    if (emailExists) {
+      throw new ConflictError("Email already exists");
+    }
   }
 
   const updatedUser = {
     ...data.users[userIndex],
-    ...userData,
-    id: parsedId,
+    ...updateData,
+    id,
   };
 
   data.users[userIndex] = updatedUser;
@@ -46,12 +71,12 @@ export const updateUser = async (userId, userData) => {
 };
 
 export const deleteUser = async (userId) => {
+  const id = parseId(userId);
   const data = await readData();
-  const parsedId = parseInt(userId, 10);
-  const userIndex = data.users.findIndex((user) => user.id === parsedId);
 
+  const userIndex = data.users.findIndex((u) => u.id === id);
   if (userIndex === -1) {
-    return null;
+    throw new NotFoundError("User not found");
   }
 
   const [deletedUser] = data.users.splice(userIndex, 1);
