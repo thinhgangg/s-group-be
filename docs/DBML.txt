@@ -1,0 +1,132 @@
+Table users {
+  id bigint [pk, increment]
+  name varchar(100) [not null]
+  email varchar(255) [not null, unique]
+  password varchar(255) [not null]
+  role varchar(20) [not null, note: 'ADMIN or MEMBER']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table classes {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  description text
+  start_date date [not null]
+  end_date date [not null]
+  mentor_id bigint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  Indexes {
+    mentor_id
+  }
+}
+
+Table class_members {
+  class_id bigint [not null]
+  member_id bigint [not null]
+  joined_at timestamp [not null]
+
+  Indexes {
+    (class_id, member_id) [pk]
+    member_id
+  }
+}
+
+Table lessons {
+  id bigint [pk, increment]
+  class_id bigint [not null]
+  title varchar(255) [not null]
+  content text [not null]
+  lesson_order int [not null]
+  created_by bigint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  Indexes {
+    class_id
+    created_by
+  }
+}
+
+Table lesson_progress {
+  id bigint [pk, increment]
+  lesson_id bigint [not null]
+  member_id bigint [not null]
+  completed_at timestamp [not null]
+
+  Indexes {
+    (lesson_id, member_id) [unique]
+    member_id
+  }
+}
+
+Table assignments {
+  id bigint [pk, increment]
+  class_id bigint [not null]
+  title varchar(255) [not null]
+  description text
+  deadline timestamp [not null]
+  maximum_score decimal(5,2) [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  Indexes {
+    class_id
+  }
+}
+
+Table submissions {
+  id bigint [pk, increment]
+  assignment_id bigint [not null]
+  member_id bigint [not null]
+  content text
+  repository_url varchar(500)
+  submitted_at timestamp [not null]
+  score decimal(5,2)
+  feedback text
+  reviewed_at timestamp
+
+  Indexes {
+    assignment_id
+    member_id
+  }
+}
+
+
+// =========================
+// Relationships
+// =========================
+
+// User -> Class
+// Một User có thể làm Mentor cho nhiều Class
+Ref: users.id < classes.mentor_id
+
+// Class <-> User thông qua ClassMember
+Ref: classes.id < class_members.class_id
+Ref: users.id < class_members.member_id
+
+// Class -> Lesson
+Ref: classes.id < lessons.class_id
+
+// User -> Lesson
+// created_by là User tạo Lesson
+Ref: users.id < lessons.created_by
+
+// Lesson -> LessonProgress
+Ref: lessons.id < lesson_progress.lesson_id
+
+// User -> LessonProgress
+Ref: users.id < lesson_progress.member_id
+
+// Class -> Assignment
+Ref: classes.id < assignments.class_id
+
+// Assignment -> Submission
+Ref: assignments.id < submissions.assignment_id
+
+// User -> Submission
+Ref: users.id < submissions.member_id
+
+https://dbdiagram.io/d/s-group-be-basic-6a9d71bb5450bea1be005ae6
