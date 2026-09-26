@@ -1,6 +1,6 @@
 import pool from "../config/db.config.js";
 
-export const findAll = async ({ sortBy = "id", order = "asc" } = {}) => {
+export const findAll = async ({ sortBy = "id", order = "asc" }) => {
   const validSortColumns = ["id", "name", "email"];
   if (!validSortColumns.includes(sortBy)) {
     throw new Error(`Invalid sort column: ${sortBy}`);
@@ -16,19 +16,18 @@ export const findAll = async ({ sortBy = "id", order = "asc" } = {}) => {
   );
   return result.rows;
 };
+export const findByEmail = async (email) => {
+  const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+    email,
+  ]);
+  return result.rows[0] || null;
+};
 
 export const findById = async (id) => {
   const result = await pool.query(
     "SELECT id, name, email, role, created_at FROM users WHERE id = $1",
     [id],
   );
-  return result.rows[0] || null;
-};
-
-export const findByEmail = async (email) => {
-  const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
   return result.rows[0] || null;
 };
 
@@ -46,8 +45,8 @@ export const update = async (id, { name, email }) => {
   const result = await pool.query(
     `UPDATE users 
      SET name = COALESCE($1, name), 
-         email = COALESCE($2, email), 
-     WHERE id = $4 
+         email = COALESCE($2, email) 
+     WHERE id = $3 
      RETURNING *`,
     [name ?? null, email ?? null, id],
   );
