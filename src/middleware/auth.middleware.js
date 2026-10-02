@@ -1,5 +1,5 @@
 import { UnauthorizedError } from "../core/error.response.js";
-import { verifyToken } from "../utils/jwt.helper.js";
+import { verifyAccessToken } from "../utils/jwt.helper.js";
 
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -13,7 +13,8 @@ export const authenticateToken = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
+
     req.user = decoded;
 
     next();
@@ -23,6 +24,7 @@ export const authenticateToken = (req, res, next) => {
         "Token của bạn đã hết hạn, vui lòng đăng nhập lại!",
       );
     }
+
     throw new UnauthorizedError(
       "Token không hợp lệ hoặc đã bị chỉnh sửa trái phép!",
     );

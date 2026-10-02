@@ -5,9 +5,12 @@ import {
   NotFoundError,
 } from "../core/error.response.js";
 import { hashPassword, comparePassword } from "../utils/password.helper.js";
-import { generateToken } from "../utils/jwt.helper.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/jwt.helper.js";
 
-export const register = async ({ name, email, password, role }) => {
+export const register = async ({ name, email, password }) => {
   const existingUser = await userRepository.findByEmail(email);
   if (existingUser) {
     throw new ConflictError("Email này đã được sử dụng!");
@@ -18,8 +21,7 @@ export const register = async ({ name, email, password, role }) => {
   const newUser = await userRepository.create({
     name,
     email,
-    password: hashedPassword,
-    role: role || "MEMBER",
+    password: hashedPassword
   });
 
   return newUser;
@@ -39,19 +41,24 @@ export const login = async ({ email, password }) => {
   const tokenPayload = {
     id: user.id,
     email: user.email,
-    role: user.role,
+    roles: user.roles,
   };
 
-  const accessToken = generateToken(tokenPayload);
+  const accessToken = generateAccessToken(tokenPayload);
+
+  const refreshToken = generateRefreshToken({
+    id: user.id,
+  });
 
   return {
     user: {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      roles: user.roles,
     },
     accessToken,
+    refreshToken,
   };
 };
 

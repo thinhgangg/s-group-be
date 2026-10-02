@@ -14,8 +14,10 @@ export const config = {
     database: process.env.DB_NAME || "postgres",
   },
   jwt: {
-    secret: process.env.JWT_SECRET || "default_jwt_secret_key",
-    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+    accessSecret: process.env.JWT_ACCESS_SECRET || "secret_access_token",
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
+    refreshSecret: process.env.JWT_REFRESH_SECRET || "secret_refresh_token",
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   },
   r2: {
     accountId: process.env.R2_ACCOUNT_ID,
