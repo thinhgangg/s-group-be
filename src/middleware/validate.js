@@ -14,8 +14,10 @@ export const validate = (rules) => {
       field: err.path,
       message: err.msg,
     }));
-    const error = new BadRequestError("Validation failed");
+
+    const error = new BadRequestError("Dữ liệu không hợp lệ!");
     error.errors = formattedErrors;
+    
     return next(error);
   };
 };
@@ -24,39 +26,42 @@ export const userIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("User ID is required")
+    .withMessage("ID người dùng không được để trống")
     .isInt({ min: 1 })
-    .withMessage("User ID must be a positive integer"),
+    .withMessage("ID người dùng phải là số nguyên dương"),
 ];
 
 export const createUserRules = [
   body("name")
     .trim()
     .notEmpty()
-    .withMessage("Name is required")
+    .withMessage("Tên người dùng không được để trống")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Name must be between 2 and 50 characters"),
+    .withMessage("Tên người dùng phải từ 2 đến 50 ký tự"),
 
   body("email")
     .trim()
     .notEmpty()
-    .withMessage("Email is required")
+    .withMessage("Email không được để trống")
     .isEmail()
-    .withMessage("Email is not valid")
+    .withMessage("Email không đúng định dạng")
     .normalizeEmail(),
 ];
 
 export const updateUserRules = [
   body().custom((value, { req }) => {
     const allowedFields = ["name", "email"];
+
     const hasAllowedField = Object.keys(req.body).some((key) =>
       allowedFields.includes(key),
     );
+
     if (!hasAllowedField) {
       throw new Error(
-        "At least one field (name, email) must be provided for update",
+        "Phải cung cấp ít nhất một trường để cập nhật: name hoặc email",
       );
     }
+
     return true;
   }),
 
@@ -64,17 +69,17 @@ export const updateUserRules = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Name cannot be empty")
+    .withMessage("Tên người dùng không được để trống")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Name must be between 2 and 50 characters"),
+    .withMessage("Tên người dùng phải từ 2 đến 50 ký tự"),
 
   body("email")
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Email cannot be empty")
+    .withMessage("Email không được để trống")
     .isEmail()
-    .withMessage("Email is not valid")
+    .withMessage("Email không đúng định dạng")
     .normalizeEmail(),
 ];
 
@@ -115,4 +120,86 @@ export const loginRules = [
     .trim()
     .notEmpty()
     .withMessage("Mật khẩu không được để trống"),
+];
+
+export const classIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID class không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID class phải là số nguyên dương"),
+];
+
+export const createClassRules = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Tên class không được để trống")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+
+  body("description").optional().trim(),
+
+  body("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày bắt đầu không đúng định dạng"),
+
+  body("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày kết thúc không đúng định dạng"),
+
+  body("mentorId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
+];
+
+export const updateClassRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = [
+      "name",
+      "description",
+      "startDate",
+      "endDate",
+      "mentorId",
+    ];
+
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!hasAllowedField) {
+      throw new Error("Phải cung cấp ít nhất một trường để cập nhật class");
+    }
+
+    return true;
+  }),
+
+  body("name")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Tên class không được để trống")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+
+  body("description").optional().trim(),
+
+  body("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày bắt đầu không đúng định dạng"),
+
+  body("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày kết thúc không đúng định dạng"),
+
+  body("mentorId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
 ];
