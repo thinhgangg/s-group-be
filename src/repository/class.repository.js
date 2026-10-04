@@ -111,3 +111,64 @@ export const deleteById = async (id) => {
 
   return result.rows[0] || null;
 };
+
+export const findMembersByClassId = async (classId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      u.id,
+      u.name,
+      u.email,
+      cm.joined_at
+    FROM class_members cm
+    JOIN users u
+      ON u.id = cm.member_id
+    WHERE cm.class_id = $1
+    ORDER BY u.id
+    `,
+    [classId],
+  );
+
+  return result.rows;
+};
+
+export const addMember = async (classId, memberId) => {
+  const result = await pool.query(
+    `
+    INSERT INTO class_members (class_id, member_id)
+    VALUES ($1, $2)
+    RETURNING *
+    `,
+    [classId, memberId],
+  );
+
+  return result.rows[0];
+};
+
+export const removeMember = async (classId, memberId) => {
+  const result = await pool.query(
+    `
+    DELETE FROM class_members
+    WHERE class_id = $1 AND member_id = $2
+    RETURNING *
+    `,
+    [classId, memberId],
+  );
+
+  return result.rows[0] || null;
+};
+
+export const assignMentor = async (classId, mentorId) => {
+  const result = await pool.query(
+    `
+    UPDATE classes
+    SET mentor_id = $1,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+    RETURNING *
+    `,
+    [mentorId, classId],
+  );
+
+  return result.rows[0] || null;
+};

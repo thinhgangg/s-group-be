@@ -31,3 +31,36 @@ export const deleteClass = catchAsync(async (req, res) => {
 
   return sendSuccess(res, 200, "Xóa class thành công", deletedClass);
 });
+
+export const getClassMembers = catchAsync(async (req, res) => {
+  const members = await classService.getClassMembers(req.params.id);
+
+  return sendSuccess(res, 200, "Lấy danh sách thành viên thành công", members);
+});
+
+export const addClassMember = catchAsync(async (req, res) => {
+  const member = await classService.addClassMember(
+    req.params.id,
+    req.body.memberId,
+  );
+
+  return sendSuccess(res, 201, "Thêm thành viên vào class thành công", member);
+});
+
+export const removeClassMember = catchAsync(async (req, res) => {
+  const member = await classService.removeClassMember(
+    req.params.id,
+    req.params.memberId,
+  );
+
+  return sendSuccess(res, 200, "Xóa thành viên khỏi class thành công", member);
+});
+
+export const assignMentor = catchAsync(async (req, res) => {
+  const classData = await classService.assignMentor(
+    req.params.id,
+    req.body.mentorId,
+  );
+
+  return sendSuccess(res, 200, "Gán mentor cho class thành công", classData);
+});

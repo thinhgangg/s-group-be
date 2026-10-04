@@ -17,7 +17,7 @@ export const validate = (rules) => {
 
     const error = new BadRequestError("Dữ liệu không hợp lệ!");
     error.errors = formattedErrors;
-    
+
     return next(error);
   };
 };
@@ -200,6 +200,31 @@ export const updateClassRules = [
 
   body("mentorId")
     .optional()
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
+];
+
+export const memberIdParamRules = [
+  param("memberId")
+    .trim()
+    .notEmpty()
+    .withMessage("ID thành viên không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID thành viên phải là số nguyên dương"),
+];
+
+export const addClassMemberRules = [
+  body("memberId")
+    .notEmpty()
+    .withMessage("ID thành viên không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID thành viên phải là số nguyên dương"),
+];
+
+export const assignMentorRules = [
+  body("mentorId")
+    .notEmpty()
+    .withMessage("ID mentor không được để trống")
     .isInt({ min: 1 })
     .withMessage("ID mentor phải là số nguyên dương"),
 ];
