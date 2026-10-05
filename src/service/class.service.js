@@ -26,8 +26,9 @@ export const getClassById = async (id, requestingUser) => {
   }
 
   const isMember = await classRepository.isMemberOfClass(id, requestingUser.id);
+  const isMentor = await classRepository.isMentorOfClass(id, requestingUser.id);
 
-  if (!isMember) {
+  if (!isMember && !isMentor) {
     throw new ForbiddenError("Bạn không phải thành viên của class này!");
   }
 

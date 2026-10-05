@@ -42,6 +42,20 @@ export const isMemberOfClass = async (classId, userId) => {
   return result.rows.length > 0;
 };
 
+export const isMentorOfClass = async (classId, userId) => {
+  const result = await pool.query(
+    `
+    SELECT 1
+    FROM classes
+    WHERE id = $1
+    AND mentor_id = $2
+    `,
+    [classId, userId],
+  );
+
+  return result.rows.length > 0;
+};
+
 export const create = async ({
   name,
   description,
