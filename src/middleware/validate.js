@@ -292,5 +292,80 @@ export const updateLessonRules = [
   body("lessonOrder")
     .optional()
     .isInt({ min: 0 })
-    .withMessage("Thứ tự lesson phải là số nguyên dương"),
+    .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
+];
+
+export const assignmentIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID assignment không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID assignment phải là số nguyên dương"),
+];
+
+export const createAssignmentRules = [
+  body("title")
+    .notEmpty()
+    .withMessage("Tên assignment không được để trống")
+    .isString()
+    .withMessage("Tên assignment phải là chuỗi"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Mô tả assignment phải là chuỗi"),
+
+  body("deadline")
+    .notEmpty()
+    .withMessage("Deadline không được để trống")
+    .isISO8601()
+    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+
+  body("maximumScore")
+    .notEmpty()
+    .withMessage("Điểm tối đa không được để trống")
+    .isFloat({ min: 0.01 })
+    .withMessage("Điểm tối đa phải lớn hơn 0"),
+];
+
+export const updateAssignmentRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = ["title", "description", "deadline", "maximumScore"];
+
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!hasAllowedField) {
+      throw new Error(
+        "Phải cung cấp ít nhất một trường để cập nhật assignment",
+      );
+    }
+
+    return true;
+  }),
+
+  body("title")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Tên assignment không được để trống")
+    .isString()
+    .withMessage("Tên assignment phải là chuỗi"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Mô tả assignment phải là chuỗi"),
+
+  body("deadline")
+    .optional()
+    .isISO8601()
+    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+
+  body("maximumScore")
+    .optional()
+    .isFloat({ min: 0.01 })
+    .withMessage("Điểm tối đa phải lớn hơn 0"),
 ];
