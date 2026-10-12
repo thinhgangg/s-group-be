@@ -215,15 +215,11 @@ CREATE TABLE IF NOT EXISTS assignments (
 -- =============================================================
 -- SUBMISSION
 -- =============================================================
--- User có thể submit NHIỀU LẦN: không có UNIQUE (assignment_id, member_id)
--- Dùng submission_number để đánh số lần submit (1, 2, 3...)
--- Mentor review từng submission hoặc submission mới nhất
 
 CREATE TABLE IF NOT EXISTS submissions (
     id                BIGSERIAL    PRIMARY KEY,
     assignment_id     BIGINT       NOT NULL,
     member_id         BIGINT       NOT NULL,
-    submission_number INTEGER      NOT NULL DEFAULT 1,  -- lần submit thứ mấy
     content           TEXT,
     repository_url    VARCHAR(1000),
     submitted_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -234,8 +230,9 @@ CREATE TABLE IF NOT EXISTS submissions (
     reviewed_by       BIGINT,
     reviewed_at       TIMESTAMP,
 
-    CONSTRAINT uq_submission_number
-        UNIQUE (assignment_id, member_id, submission_number),
+    -- Mỗi member chỉ có một submission cho mỗi assignment
+    CONSTRAINT uq_submission_assignment_member
+        UNIQUE (assignment_id, member_id),
 
     CONSTRAINT fk_sub_assignment
         FOREIGN KEY (assignment_id)
