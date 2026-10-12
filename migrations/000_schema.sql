@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     class_id    BIGINT       NOT NULL,
     title       VARCHAR(255) NOT NULL,
     content     TEXT,
-    "order"     INTEGER      NOT NULL DEFAULT 0,
+    "lesson_order"     INTEGER      NOT NULL DEFAULT 0,
     created_by  BIGINT       NOT NULL,           -- mentor tạo lesson
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS lessons (
         ON DELETE RESTRICT,
 
     CONSTRAINT chk_lesson_order
-        CHECK ("order" >= 0)
+        CHECK ("lesson_order" >= 0)
 );
 
 -- =============================================================
@@ -298,7 +298,7 @@ CREATE INDEX IF NOT EXISTS idx_cm_class_id              ON class_members(class_i
 CREATE INDEX IF NOT EXISTS idx_cm_member_id             ON class_members(member_id);
 
 CREATE INDEX IF NOT EXISTS idx_lessons_class_id         ON lessons(class_id);
-CREATE INDEX IF NOT EXISTS idx_lessons_class_order      ON lessons(class_id, "order");
+CREATE INDEX IF NOT EXISTS idx_lessons_class_order      ON lessons(class_id, "lesson_order");
 
 CREATE INDEX IF NOT EXISTS idx_lp_lesson_id             ON lesson_progress(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_lp_member_id             ON lesson_progress(member_id);
