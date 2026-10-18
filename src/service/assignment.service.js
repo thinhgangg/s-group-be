@@ -115,7 +115,7 @@ export const deleteAssignment = async (id, requestingUser) => {
   }
 
   if (!requestingUser.roles.includes("ADMIN")) {
-    const isMentor = classRepository.isMentorOfClass(
+    const isMentor = await classRepository.isMentorOfClass(
       assignment.class_id,
       requestingUser.id,
     );

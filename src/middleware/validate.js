@@ -369,3 +369,59 @@ export const updateAssignmentRules = [
     .isFloat({ min: 0.01 })
     .withMessage("Điểm tối đa phải lớn hơn 0"),
 ];
+
+export const submissionIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID bài nộp không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID bài nộp phải là số nguyên dương"),
+];
+
+export const submitAssignmentRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = ["content", "repositoryUrl"];
+
+    const hasAllowedField = Object.keys(req.body).some(
+      (key) =>
+        allowedFields.includes(key) &&
+        req.body[key] !== undefined &&
+        String(req.body[key]).trim() !== "",
+    );
+
+    if (!hasAllowedField) {
+      throw new Error(
+        "Phải cung cấp ít nhất nội dung bài làm (content) hoặc link bài nộp (repositoryUrl)",
+      );
+    }
+
+    return true;
+  }),
+
+  body("content")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Nội dung bài nộp phải là chuỗi"),
+
+  body("repositoryUrl")
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage("Link repository không đúng định dạng URL"),
+];
+
+export const reviewSubmissionRules = [
+  body("score")
+    .notEmpty()
+    .withMessage("Điểm số không được để trống")
+    .isFloat({ min: 0 })
+    .withMessage("Điểm số phải là số lớn hơn hoặc bằng 0"),
+
+  body("feedback")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Nhận xét phải là chuỗi"),
+];
