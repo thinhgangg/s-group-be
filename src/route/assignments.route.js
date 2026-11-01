@@ -8,6 +8,7 @@ import {
   submitAssignmentRules,
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
+import { requirePermission } from "../middleware/rbac.middleware.js";
 
 const router = Router();
 
@@ -32,9 +33,18 @@ router.delete(
   assignmentController.deleteAssignment,
 );
 
+router.get(
+  "/:id/submissions/me",
+  authenticateToken,
+  requirePermission("SUBMISSION_READ_OWN"),
+  validate(assignmentIdParamRules),
+  submissionController.getMySubmissionByAssignment,
+);
+
 router.post(
   "/:id/submissions",
   authenticateToken,
+  requirePermission("SUBMISSION_CREATE"),
   validate([...assignmentIdParamRules, ...submitAssignmentRules]),
   submissionController.submitAssignment,
 );
@@ -44,13 +54,6 @@ router.get(
   authenticateToken,
   validate(assignmentIdParamRules),
   submissionController.getSubmissionsByAssignmentId,
-);
-
-router.get(
-  "/:id/my-submission",
-  authenticateToken,
-  validate(assignmentIdParamRules),
-  submissionController.getMySubmissionByAssignment,
 );
 
 export default router;

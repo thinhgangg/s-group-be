@@ -1,7 +1,11 @@
 import * as submissionRepository from "../repository/submission.repository.js";
 import * as assignmentRepository from "../repository/assignment.repository.js";
 import * as classRepository from "../repository/class.repository.js";
-import { NotFoundError, ForbiddenError } from "../core/error.response.js";
+import {
+  NotFoundError,
+  ForbiddenError,
+  BadRequestError,
+} from "../core/error.response.js";
 
 export const getSubmissionById = async (id, requestingUser) => {
   const submission = await submissionRepository.findById(id);
@@ -35,6 +39,7 @@ export const getSubmissionById = async (id, requestingUser) => {
 export const getSubmissionsByAssignmentId = async (
   assignmentId,
   requestingUser,
+  options = {},
 ) => {
   const assignment = await assignmentRepository.findById(assignmentId);
 
@@ -55,7 +60,7 @@ export const getSubmissionsByAssignmentId = async (
     }
   }
 
-  return await submissionRepository.findAllByAssignmentId(assignmentId);
+  return await submissionRepository.findAllByAssignmentId(assignmentId, options);
 };
 
 export const getMySubmissionByAssignment = async (
@@ -89,8 +94,8 @@ export const getMySubmissionByAssignment = async (
   return submission;
 };
 
-export const getSubmissionsByMemberId = async (memberId) => {
-  return await submissionRepository.findAllByMemberId(memberId);
+export const getSubmissionsByMemberId = async (memberId, options = {}) => {
+  return await submissionRepository.findAllByMemberId(memberId, options);
 };
 
 export const submitAssignment = async (assignmentId, data, requestingUser) => {
@@ -109,6 +114,10 @@ export const submitAssignment = async (assignmentId, data, requestingUser) => {
     throw new ForbiddenError(
       "Chỉ thành viên của class mới được phép nộp bài tập này!",
     );
+  }
+
+  if (assignment.deadline && new Date() > new Date(assignment.deadline)) {
+    throw new BadRequestError("Đã quá thời hạn nộp bài tập này!");
   }
 
   return await submissionRepository.upsert({

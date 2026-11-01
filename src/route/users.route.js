@@ -15,21 +15,21 @@ router.get(
   "/",
   authenticateToken,
   requirePermission("USER_READ"),
-  userController.getAllUsers
+  userController.getAllUsers,
 );
 router.get(
   "/:id",
   authenticateToken,
   requirePermission("USER_READ"),
   validate(userIdParamRules),
-  userController.getUserById
+  userController.getUserById,
 );
 router.post(
   "/",
   authenticateToken,
   requirePermission("USER_CREATE"),
   validate(createUserRules),
-  userController.createUser
+  userController.createUser,
 );
 router.patch(
   "/:id",
