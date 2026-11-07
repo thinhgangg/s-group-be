@@ -122,6 +122,16 @@ export const loginRules = [
     .withMessage("Mật khẩu không được để trống"),
 ];
 
+export const refreshTokenRules = [
+  body().custom((value, { req }) => {
+    const token = req.body?.refreshToken || req.body?.refresh_token;
+    if (!token || typeof token !== "string" || token.trim() === "") {
+      throw new Error("Refresh token không được để trống");
+    }
+    return true;
+  }),
+];
+
 export const classIdParamRules = [
   param("id")
     .trim()

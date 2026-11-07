@@ -3,11 +3,13 @@ import {
   ConflictError,
   UnauthorizedError,
   NotFoundError,
+  BadRequestError,
 } from "../core/error.response.js";
 import { hashPassword, comparePassword } from "../utils/password.helper.js";
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../utils/jwt.helper.js";
 
 export const register = async ({ name, email, password }) => {
@@ -68,4 +70,49 @@ export const getMe = async (userId) => {
     throw new NotFoundError("Người dùng không còn tồn tại trên hệ thống!");
   }
   return user;
+};
+
+export const refreshToken = async (token) => {
+  if (!token) {
+    throw new BadRequestError("Vui lòng cung cấp refresh token!");
+  }
+
+  let decoded;
+  try {
+    decoded = verifyRefreshToken(token);
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      throw new UnauthorizedError(
+        "Refresh token đã hết hạn, vui lòng đăng nhập lại!",
+      );
+    }
+    throw new UnauthorizedError(
+      "Refresh token không hợp lệ hoặc đã bị chỉnh sửa!",
+    );
+  }
+
+  const user = await userRepository.findById(decoded.id);
+  if (!user) {
+    throw new UnauthorizedError("Người dùng không còn tồn tại trên hệ thống!");
+  }
+
+  const tokenPayload = {
+    id: user.id,
+    email: user.email,
+    roles: user.roles,
+  };
+
+  const newAccessToken = generateAccessToken(tokenPayload);
+  const newRefreshToken = generateRefreshToken({
+    id: user.id,
+  });
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
+};
+
+export const logout = async () => {
+  return true;
 };

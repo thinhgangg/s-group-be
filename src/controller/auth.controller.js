@@ -23,3 +23,14 @@ export const getMe = catchAsync(async (req, res) => {
     userProfile,
   );
 });
+
+export const refreshToken = catchAsync(async (req, res) => {
+  const token = req.body?.refreshToken || req.body?.refresh_token;
+  const result = await authService.refreshToken(token);
+  return sendSuccess(res, 200, "Làm mới token thành công!", result);
+});
+
+export const logout = catchAsync(async (req, res) => {
+  await authService.logout();
+  return sendSuccess(res, 200, "Đăng xuất thành công!");
+});
